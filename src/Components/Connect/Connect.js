@@ -123,8 +123,12 @@ export class Connect extends Component {
 
                         {this.state.discordLogin === '' ? 
                             <button className={styles.discordLoginButton}
-                            onClick={()=>this.logUserIn('discord')}>
-                                <img src={discordLogin} className={styles.loginImage} style={this.state.twitchLogin === '' ? {visibility: 'hidden'} : {visibility: 'visible'}} alt='login'/>
+                            onClick={()=>{
+                                if(this.state.twitchLogin !== ''){
+                                    this.logUserIn('discord')
+                                }                                    
+                                }}>
+                                <img src={discordLogin} className={styles.loginImage} style={this.state.twitchLogin === '' ? {display: 'none'} : {display: 'block'}} alt='login'/>
                             </button>
                             :
                             <button className={styles.discordLoginButton}>
