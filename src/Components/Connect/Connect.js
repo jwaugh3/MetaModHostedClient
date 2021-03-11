@@ -20,7 +20,8 @@ export class Connect extends Component {
         discordID: '',
         discordLogin: '',
         discordDiscriminator: '',
-        status: ''
+        status: '',
+        verified: false
     }
 
     componentDidMount = async () => {
@@ -37,13 +38,19 @@ export class Connect extends Component {
             if(userData){
                 this.setState({
                     twitchID: userData.twitch_ID,
-                    twitchLogin: userData.twitch_username,
-                    discordID: userData.discord_ID,
-                    discordLogin: userData.discord_username,
-                    discordDiscriminator: userData.discord_discriminator
+                    twitchLogin: userData.twitch_username
                 })
+
+                if(userData.discordLogin){
+                    this.setState({
+                        discordID: userData.discord_ID,
+                        discordLogin: userData.discord_username,
+                        discordDiscriminator: userData.discord_discriminator
+                    })
+                }
             }
             console.log(userData)
+            console.log(this.state)
         }
 
         //event listener for popup messages with login info
@@ -53,7 +60,8 @@ export class Connect extends Component {
             if(event.data.includes('twitchID') && !event.data.includes('discordID')){
                 this.setState({
                     twitchID: userData[0].substring(10, userData[0].length), 
-                    twitchLogin: userData[1].substring(12, userData[1].length)
+                    twitchLogin: userData[1].substring(12, userData[1].length),
+                    verified: true
                 })
             } else if(event.data.includes('discordID') && !event.data.includes('twitchID')){
                 console.log(userData)
@@ -75,10 +83,11 @@ export class Connect extends Component {
                     discordLogin: userData[3].substring(13, userData[3].length),
                     discordDiscriminator: userData[4].substring(14, userData[4].length)
                 }, ()=>{
-                    window.location = 'http://localhost:3001/connect?' + userData[1].substring(12, userData[1].length)
+                    if(!window.location.search.startsWith('?' + twitchLogin)){
+                        window.location = 'http://localhost:3001/connect?' + userData[1].substring(12, userData[1].length)
+                    }
                 })
             }
-
         })
     }
 
@@ -110,7 +119,7 @@ export class Connect extends Component {
                             null
                         }
 
-                        {this.state.twitchLogin === '' ? 
+                        {this.state.verified === false ? 
                             <button className={styles.twitchLoginButton}
                             onClick={()=>this.logUserIn('twitch')}>
                                 <img src={twitchLogin} className={styles.loginImage} alt='login'/>
