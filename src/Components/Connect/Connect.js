@@ -20,8 +20,8 @@ export class Connect extends Component {
         discordID: '',
         discordLogin: '',
         discordDiscriminator: '',
-        status: '',
-        verified: false
+        token: '',
+        status: ''
     }
 
     componentDidMount = async () => {
@@ -32,27 +32,6 @@ export class Connect extends Component {
             apiEndpoint = 'https://api.metamoderation.com'
         }
 
-        if(window.location.search){
-            let username = window.location.search.substring(1, window.location.search.length)
-            let userData = await getUser(apiEndpoint, username)
-            if(userData){
-                this.setState({
-                    twitchID: userData.twitch_ID,
-                    twitchLogin: userData.twitch_username
-                })
-
-                if(userData.discordLogin){
-                    this.setState({
-                        discordID: userData.discord_ID,
-                        discordLogin: userData.discord_username,
-                        discordDiscriminator: userData.discord_discriminator
-                    })
-                }
-            }
-            console.log(userData)
-            console.log(this.state)
-        }
-
         //event listener for popup messages with login info
         window.addEventListener("message", async (event)=>{
             console.log(event.data)
@@ -60,20 +39,21 @@ export class Connect extends Component {
             if(event.data.includes('twitchID') && !event.data.includes('discordID')){
                 this.setState({
                     twitchID: userData[0].substring(10, userData[0].length), 
-                    twitchLogin: userData[1].substring(12, userData[1].length),
-                    verified: true
+                    twitchLogin: userData[1].substring(12, userData[1].length)
                 })
-            } else if(event.data.includes('discordID') && !event.data.includes('twitchID')){
-                console.log(userData)
+            } else if(event.data.includes('discordID') && !event.data.includes('twitchID') && !event.data.includes(undefined)){
+                console.log(userData, 'userData', userData[0].substring(11, userData[0].length))
+                
                 this.setState({
                     discordID: userData[0].substring(11, userData[0].length), 
                     discordLogin: userData[1].substring(13, userData[1].length),
-                    discordDiscriminator: userData[2].substring(14, userData[2].length)
+                    discordDiscriminator: userData[2].substring(14, userData[2].length),
+                    token: userData[3].substring(6, userData[3].length)
                 }, async()=>{
+                    console.log(this.state)
                     //send data connection to server
                     let connectionStatus = await sendConnection(apiEndpoint, this.state)
-                    this.setState({status: connectionStatus}, ()=>{console.log(this.state)})
-                
+                    this.setState({status: connectionStatus.status}, ()=>{console.log(this.state)})
                 })
             } else if(event.data.includes('twitchID') && event.data.includes('discordID')){
                 this.setState({
@@ -82,10 +62,6 @@ export class Connect extends Component {
                     discordID: userData[2].substring(11, userData[2].length), 
                     discordLogin: userData[3].substring(13, userData[3].length),
                     discordDiscriminator: userData[4].substring(14, userData[4].length)
-                }, ()=>{
-                    if(!window.location.search.startsWith('?' + twitchLogin)){
-                        window.location = 'http://localhost:3001/connect?' + userData[1].substring(12, userData[1].length)
-                    }
                 })
             }
         })
@@ -116,10 +92,10 @@ export class Connect extends Component {
                         {this.state.twitchLogin === '' || this.state.discordLogin === '' ?
                             <div className={styles.instruction}>Connect Twitch to Discord to start gaining ranks</div>
                             :
-                            null
+                            <div className={styles.instruction} style={{color: '#90D48B'}}><b>You can now close this tab.</b></div>
                         }
 
-                        {this.state.verified === false ? 
+                        {this.state.twitchLogin === '' ? 
                             <button className={styles.twitchLoginButton}
                             onClick={()=>this.logUserIn('twitch')}>
                                 <img src={twitchLogin} className={styles.loginImage} alt='login'/>
