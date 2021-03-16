@@ -34,7 +34,7 @@ export class Connect extends Component {
 
         //event listener for popup messages with login info
         window.addEventListener("message", async (event)=>{
-            console.log(event.data)
+            // console.log(event.data)
             let userData = event.data.split('&')
             if(event.data.includes('twitchID') && !event.data.includes('discordID')){
                 this.setState({
@@ -42,7 +42,7 @@ export class Connect extends Component {
                     twitchLogin: userData[1].substring(12, userData[1].length)
                 })
             } else if(event.data.includes('discordID') && !event.data.includes('twitchID') && !event.data.includes(undefined)){
-                console.log(userData, 'userData', userData[0].substring(11, userData[0].length))
+                // console.log(userData, 'userData', userData[0].substring(11, userData[0].length))
                 
                 this.setState({
                     discordID: userData[0].substring(11, userData[0].length), 
@@ -50,10 +50,10 @@ export class Connect extends Component {
                     discordDiscriminator: userData[2].substring(14, userData[2].length),
                     token: userData[3].substring(6, userData[3].length)
                 }, async()=>{
-                    console.log(this.state)
+                    // console.log(this.state)
                     //send data connection to server
                     let connectionStatus = await sendConnection(apiEndpoint, this.state)
-                    this.setState({status: connectionStatus.status}, ()=>{console.log(this.state)})
+                    this.setState({status: connectionStatus.status})
                 })
             } else if(event.data.includes('twitchID') && event.data.includes('discordID')){
                 this.setState({

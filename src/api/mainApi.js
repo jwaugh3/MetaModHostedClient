@@ -1,5 +1,5 @@
 export const sendConnection = async (apiURL, data) => {
-    console.log(data)
+    // console.log(data)
     let connectionData = new Promise((resolve, reject)=>{
         fetch(apiURL + '/api/connection', {
             method: 'POST',
@@ -11,7 +11,7 @@ export const sendConnection = async (apiURL, data) => {
             }
         })
         .then((data)=>{
-            console.log(data)
+            // console.log(data)
             resolve(data)
         })
         .catch((err)=>{
